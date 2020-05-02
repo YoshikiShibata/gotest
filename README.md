@@ -1,2 +1,10 @@
 # gotest
-A simple wrappter for go test command to specify test .go files.
+A simple wrapper for go test command to specify xxx_test.go file. With `-run` option, you specify test file name such as xxxx_test.go instead of functions.
+
+`gotest` enumerates all `Test_XXX` functions in the file and invokes `go test` command.
+
+# usage
+
+```
+go test [-v] -run=testFileName
+```
