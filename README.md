@@ -6,5 +6,5 @@ A simple wrapper for go test command to specify xxx_test.go file. With `-run` op
 # usage
 
 ```
-go test [-v] -run=testFileName
+gotest [-v] -run=testFileName
 ```
