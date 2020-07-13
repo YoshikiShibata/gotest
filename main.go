@@ -14,10 +14,11 @@ import (
 	"strings"
 )
 
-const version = "1.0.0"
+const version = "1.1.0"
 
 var runFile = flag.String("run", "", "Go test file to run")
 var verbose = flag.Bool("v", false, "verbose")
+var tags = flag.String("tags", "", "tags")
 
 func main() {
 	flag.Parse()
@@ -36,7 +37,7 @@ func main() {
 	}
 
 	runFlag := createRunFlag(funcNames)
-	cmdArgs := createCmdArgs(runFlag, *verbose)
+	cmdArgs := createCmdArgs(runFlag, *verbose, *tags)
 
 	if *verbose {
 		fmt.Fprintf(os.Stdout, "gotest version %s\n", version)
@@ -82,11 +83,18 @@ func createRunFlag(funcNames []string) string {
 	return sb.String()
 }
 
-func createCmdArgs(runFlag string, verbose bool) []string {
+func createCmdArgs(runFlag string, verbose bool, tags string) []string {
+	args := []string{"test"}
+
 	if verbose {
-		return []string{"test", "-v", runFlag}
+		args = append(args, "-v")
 	}
-	return []string{"test", runFlag}
+
+	if tags != "" {
+		args = append(args, fmt.Sprintf("-tags=%s", tags))
+	}
+
+	return append(args, runFlag)
 }
 
 func execGoTestCommand(cmdArgs []string) {
