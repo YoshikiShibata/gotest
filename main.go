@@ -108,5 +108,6 @@ func execGoTestCommand(cmdArgs []string) {
 	}
 	if err := cmd.Wait(); err != nil {
 		fmt.Fprintf(os.Stderr, "Wait() failed: %v\n", err)
+		os.Exit(1)
 	}
 }
