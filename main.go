@@ -14,26 +14,31 @@ import (
 	"strings"
 )
 
-const version = "1.1.0"
+const version = "1.2.0"
 
-var runFile = flag.String("run", "", "Go test file to run")
+var runFiles = flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
 var verbose = flag.Bool("v", false, "verbose")
 var tags = flag.String("tags", "", "tags")
 
 func main() {
 	flag.Parse()
 
-	if *runFile == "" {
+	if *runFiles == "" {
 		fmt.Fprintf(os.Stderr, "usage: gotest [-v] -run=testfile\n")
 		os.Exit(1)
 	}
 
-	funcNames := listFuncNames(*runFile, "Test")
-	if len(funcNames) == 0 {
-		fmt.Fprintf(os.Stderr,
-			"%s doesn't containy any Test* functions\n",
-			*runFile)
-		os.Exit(1)
+	files := strings.Split(*runFiles, ",")
+	var funcNames []string
+	for _, file := range files {
+		funcs := listFuncNames(file, "Test")
+		if len(funcs) == 0 {
+			fmt.Fprintf(os.Stderr,
+				"%s doesn't containy any Test* functions\n",
+				*runFiles)
+			os.Exit(1)
+		}
+		funcNames = append(funcNames, funcs...)
 	}
 
 	runFlag := createRunFlag(funcNames)
