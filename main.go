@@ -9,16 +9,19 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"math/rand"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
-const version = "1.2.0"
+const version = "1.3.0"
 
 var runFiles = flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
 var verbose = flag.Bool("v", false, "verbose")
 var tags = flag.String("tags", "", "tags")
+var shuffle = flag.Bool("shuffle", false, "shuffle the order of tests")
 
 func main() {
 	flag.Parse()
@@ -39,6 +42,13 @@ func main() {
 			os.Exit(1)
 		}
 		funcNames = append(funcNames, funcs...)
+	}
+
+	if *shuffle {
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(funcNames), func(i, j int) {
+			funcNames[i], funcNames[j] = funcNames[j], funcNames[i]
+		})
 	}
 
 	runFlag := createRunFlag(funcNames)
