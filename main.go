@@ -9,21 +9,19 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"math/rand"
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
-const version = "1.3.0"
-
-var runFiles = flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
-var verbose = flag.Bool("v", false, "verbose")
-var tags = flag.String("tags", "", "tags")
-var shuffle = flag.Bool("shuffle", false, "shuffle the order of tests")
+const version = "1.4.0"
 
 func main() {
+	runFiles := flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
+	verbose := flag.Bool("v", false, "verbose")
+	tags := flag.String("tags", "", "tags")
+	race := flag.Bool("race", false, "race detection")
+
 	flag.Parse()
 
 	if *runFiles == "" {
@@ -44,15 +42,8 @@ func main() {
 		funcNames = append(funcNames, funcs...)
 	}
 
-	if *shuffle {
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(funcNames), func(i, j int) {
-			funcNames[i], funcNames[j] = funcNames[j], funcNames[i]
-		})
-	}
-
 	runFlag := createRunFlag(funcNames)
-	cmdArgs := createCmdArgs(runFlag, *verbose, *tags)
+	cmdArgs := createCmdArgs(runFlag, *verbose, *tags, *race)
 
 	if *verbose {
 		fmt.Fprintf(os.Stdout, "gotest version %s\n", version)
@@ -98,7 +89,7 @@ func createRunFlag(funcNames []string) string {
 	return sb.String()
 }
 
-func createCmdArgs(runFlag string, verbose bool, tags string) []string {
+func createCmdArgs(runFlag string, verbose bool, tags string, race bool) []string {
 	args := []string{"test"}
 
 	if verbose {
@@ -107,6 +98,10 @@ func createCmdArgs(runFlag string, verbose bool, tags string) []string {
 
 	if tags != "" {
 		args = append(args, fmt.Sprintf("-tags=%s", tags))
+	}
+
+	if race {
+		args = append(args, "-race")
 	}
 
 	return append(args, runFlag)
