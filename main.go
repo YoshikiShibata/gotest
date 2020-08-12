@@ -14,13 +14,14 @@ import (
 	"strings"
 )
 
-const version = "1.4.0"
+const version = "1.5.0"
 
 func main() {
 	runFiles := flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
 	verbose := flag.Bool("v", false, "verbose")
 	tags := flag.String("tags", "", "tags")
 	race := flag.Bool("race", false, "race detection")
+	cpu := flag.Int("p", 0, "cpu")
 
 	flag.Parse()
 
@@ -43,7 +44,7 @@ func main() {
 	}
 
 	runFlag := createRunFlag(funcNames)
-	cmdArgs := createCmdArgs(runFlag, *verbose, *tags, *race)
+	cmdArgs := createCmdArgs(runFlag, *verbose, *tags, *race, *cpu)
 
 	if *verbose {
 		fmt.Fprintf(os.Stdout, "gotest version %s\n", version)
@@ -89,7 +90,13 @@ func createRunFlag(funcNames []string) string {
 	return sb.String()
 }
 
-func createCmdArgs(runFlag string, verbose bool, tags string, race bool) []string {
+func createCmdArgs(
+	runFlag string,
+	verbose bool,
+	tags string,
+	race bool,
+	cpu int,
+) []string {
 	args := []string{"test"}
 
 	if verbose {
@@ -102,6 +109,10 @@ func createCmdArgs(runFlag string, verbose bool, tags string, race bool) []strin
 
 	if race {
 		args = append(args, "-race")
+	}
+
+	if cpu != 0 {
+		args = append(args, fmt.Sprintf("-p=%d", cpu))
 	}
 
 	return append(args, runFlag)
