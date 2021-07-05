@@ -1,4 +1,4 @@
-// Copyright © 2020 Yoshiki Shibata. All rights reserved.
+// Copyright © 2020, 2021 Yoshiki Shibata. All rights reserved.
 
 package main
 
@@ -14,14 +14,18 @@ import (
 	"strings"
 )
 
-const version = "1.5.0"
+const version = "1.6.0"
 
 func main() {
-	runFiles := flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
-	verbose := flag.Bool("v", false, "verbose")
-	tags := flag.String("tags", "", "tags")
-	race := flag.Bool("race", false, "race detection")
-	cpu := flag.Int("p", 0, "cpu")
+	var (
+		runFiles     = flag.String("run", "", "Go test file to run. Multiple files can be seperated by a comma.")
+		verbose      = flag.Bool("v", false, "verbose")
+		tags         = flag.String("tags", "", "tags")
+		race         = flag.Bool("race", false, "race detection")
+		cpu          = flag.Int("p", 0, "cpu")
+		coverprofile = flag.String("coverprofile", "", "coverprofile")
+		coverpkg     = flag.String("coverpkg", "", "coverpkg")
+	)
 
 	flag.Parse()
 
@@ -44,7 +48,14 @@ func main() {
 	}
 
 	runFlag := createRunFlag(funcNames)
-	cmdArgs := createCmdArgs(runFlag, *verbose, *tags, *race, *cpu)
+	cmdArgs := createCmdArgs(runFlag,
+		*verbose,
+		*tags,
+		*race,
+		*cpu,
+		*coverprofile,
+		*coverpkg,
+	)
 
 	if *verbose {
 		fmt.Fprintf(os.Stdout, "gotest version %s\n", version)
@@ -96,6 +107,8 @@ func createCmdArgs(
 	tags string,
 	race bool,
 	cpu int,
+	coverprofile string,
+	coverpkg string,
 ) []string {
 	args := []string{"test"}
 
@@ -113,6 +126,13 @@ func createCmdArgs(
 
 	if cpu != 0 {
 		args = append(args, fmt.Sprintf("-p=%d", cpu))
+	}
+
+	if coverprofile != "" {
+		args = append(args, fmt.Sprintf("-coverprofile=%s", coverprofile))
+	}
+	if coverpkg != "" {
+		args = append(args, fmt.Sprintf("-coverpkg=%s", coverpkg))
 	}
 
 	return append(args, runFlag)
