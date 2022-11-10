@@ -1,4 +1,4 @@
-// Copyright © 2020, 2021 Yoshiki Shibata. All rights reserved.
+// Copyright © 2020-2022 Yoshiki Shibata. All rights reserved.
 
 package main
 
@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const version = "1.6.0"
+const version = "1.6.1"
 
 func main() {
 	var (
@@ -135,6 +135,7 @@ func createCmdArgs(
 		args = append(args, fmt.Sprintf("-coverpkg=%s", coverpkg))
 	}
 
+	args = append(args, flag.Args()...)
 	return append(args, runFlag)
 }
 
