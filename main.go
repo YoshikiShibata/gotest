@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const version = "1.6.1"
+const version = "1.6.2"
 
 func main() {
 	var (
@@ -25,6 +25,7 @@ func main() {
 		cpu          = flag.Int("p", 0, "cpu")
 		coverprofile = flag.String("coverprofile", "", "coverprofile")
 		coverpkg     = flag.String("coverpkg", "", "coverpkg")
+		parallel     = flag.Int("parallel", 0, "parallel")
 	)
 
 	flag.Parse()
@@ -55,6 +56,7 @@ func main() {
 		*cpu,
 		*coverprofile,
 		*coverpkg,
+		*parallel,
 	)
 
 	if *verbose {
@@ -109,6 +111,7 @@ func createCmdArgs(
 	cpu int,
 	coverprofile string,
 	coverpkg string,
+	parallel int,
 ) []string {
 	args := []string{"test"}
 
@@ -133,6 +136,10 @@ func createCmdArgs(
 	}
 	if coverpkg != "" {
 		args = append(args, fmt.Sprintf("-coverpkg=%s", coverpkg))
+	}
+
+	if parallel != 0 {
+		args = append(args, fmt.Sprintf("-parallel=%d", parallel))
 	}
 
 	args = append(args, flag.Args()...)
